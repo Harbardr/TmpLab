@@ -13,9 +13,7 @@ class FirstViewController: UIViewController {
     var _timer:Timer?
 
     @IBOutlet weak var ui_backGround: UIImageView!
-    
     @IBOutlet weak var ui_tmpLogo: UIImageView!
-    
     @IBOutlet weak var ui_onAirImage: UIImageView!
     
     @IBAction func ui_refresh() {
@@ -26,6 +24,15 @@ class FirstViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(FirstViewController.networkStatusChanged(_:)), name: NSNotification.Name(rawValue: ReachabilityStatusChangedNotification), object: nil)
+        Reach().monitorReachabilityChanges()
+    }
+    
+    func networkStatusChanged(_ notification: Notification) {
+        let userInfo = (notification as NSNotification).userInfo
+        print(userInfo ?? "julien") //to CHANGE
+        tmpResidence()
     }
 
     override func didReceiveMemoryWarning() {
@@ -36,8 +43,7 @@ class FirstViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         tmpResidence()
     }
-    
-    
+
     func scheduleNewTimer() {
         if let existingTimer:Timer = _timer {
             existingTimer.invalidate()
@@ -51,7 +57,13 @@ class FirstViewController: UIViewController {
         
         let myURLString = "http://mptwatch.tmplab.org/?action=get&key=foo&format=boolean"
         
-        if Reachability.isConnectedToNetwork() == true {
+        //print(Reach().connectionStatus())
+        
+        let statusConnect = Reach().connectionStatus()
+        
+        //if Reachability.isConnectedToNetwork() == true {
+        switch statusConnect {
+        case .online(.wwan), .online(.wiFi):
             print("Internet connection OK")
             
             guard let myURL = URL(string: myURLString) else {
@@ -73,7 +85,7 @@ class FirstViewController: UIViewController {
                 print("Error: \(error)")
             }
             
-        } else {
+        case .unknown, .offline:
             print("Internet connection FAILED")
             
             ui_onAirImage.image = UIImage(named: "bulbOffNetwork")
@@ -81,8 +93,8 @@ class FirstViewController: UIViewController {
             let alert = UIAlertController(title: "No Internet Connection", message: "Make sure your device is connected to the internet.", preferredStyle: UIAlertControllerStyle.alert)
             alert.addAction(UIAlertAction(title: "Close", style: UIAlertActionStyle.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
+        
         }
-
         
         scheduleNewTimer()
     }

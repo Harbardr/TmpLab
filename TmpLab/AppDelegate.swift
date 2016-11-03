@@ -42,6 +42,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        let status = Reach().connectionStatus()
+        switch status {
+        case .unknown, .offline:
+            print("Not connected")
+        case .online(.wwan):
+            print("Connected via WWAN")
+        case .online(.wiFi):
+            print("Connected via WiFi")
+        }
     }
 
     func applicationWillTerminate(_ application: UIApplication) {

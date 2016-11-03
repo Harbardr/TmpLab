@@ -16,7 +16,7 @@ class OptionsViewController: UIViewController {
     @IBOutlet weak var ui_labelSlider: UILabel!
     
     func updateSliderLabel(withSlider slider:UISlider) {
-        ui_labelSlider.text = "Refresh : \(String(format: "%.f", slider.value/60)) m"
+        ui_labelSlider.text = "Rescan : \(String(format: "%.f", slider.value/60)) m"
     }
     
     override func viewDidLoad() {
